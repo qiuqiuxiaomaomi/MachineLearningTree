@@ -9,6 +9,7 @@
 
 from numpy import *
 import operator
+from os import listdir
 
 def createDataSet():
     group = array([[1.0,1.1], [1.0,1.0], [0,0],[0,0.1]])
@@ -109,3 +110,57 @@ def datingClassTest():
         inArr = array([ffMiles, percentTats, iceCream])
         classifierResult = classify0((inArr - minVals)/ ranges, normMat, datingLabels, 3)
         print "You will probably like this person: ", resultList[classifierResult - 1]
+
+
+# ----------------------------------------------------------------------
+
+#   手写识别系统
+#       流程：
+#            1）收集数据：提供文本文件
+#            2）准备数据：编写函数classify0(), 将图像格式转换为分类器使用的list格式
+#            3）分析数据：在Python命令提示符中检查数据，确保它符合要求
+#            5）训练算法：此步骤不适用于k-近邻算法
+#            6）测试算法：编写函数使用提供的部分数据集作为测试样本，测试样本与非测试样本的区别在于测试样本
+#                         已经是完成分类的数据，如果预测分类与实际类型不同，则标记为一个错误
+#
+#            k-近邻算法识别手写数字数据集，改变变量k的值，修改函数handwriting-ClassTest随机选取训练样本，
+#            改变训练样本的数目，都会对k-近邻算法的错误率产生影响，
+#
+#            实际使用这个算法时，算法的执行效率并不高。因为算法需要为每个测试向量做2000次距离计算，每个距离计算
+#            包括了1024个维度浮点运算，总计要执行900次，此外，还需要为测试向量准备2M的存储空间，k决策树就是k-近
+#            邻算法的优化版，可以节省大量的计算开销
+
+def img2vector(filename):
+    returnVect = zeros((1, 1024))
+    fr = open(filename)
+    for i in range(32):
+        lineStr = fr.readline()
+        for j in range(32):
+            returnVect[0, 32*i + j] = int[lineStr[j]]
+    return returnVect
+
+# 测试算法：使用k近邻算法识别手写数字
+def handwritingClassTest():
+    hwLabels = []
+    trainingFileList = listdir('trainingDigits')
+    m = len(trainingFileList)
+    trainingMat = zeros((m, 1024))
+    for i in range(m):
+        fileNameStr = trainingFileList[i]
+        fileStr = fileNameStr.split('.')[0]
+        classNumStr = int(fileStr.split('_')[0])
+        hwLabels.append(classNumStr)
+        trainingMat[i,:] = img2vector('trainingDigits/%s' % fileNameStr)
+    testFileList = listdir('testDigits')
+    errorCount = 0.0
+    mTest = len(testFileList)
+    for i in range(mTest):
+        fileNameStr = testFileList[i]
+        fileStr = fileNameStr.split('.')[0]
+        classNumStr = int(fileStr.split('_')[0])
+        vectorUnderTest = img2vector('testDigits/%s' % fileNameStr)
+        classifierResult = classify0(vectorUnderTest, trainingMat, hwLabels, 3)
+        print "the classifier came back with: %d, the real answer is: %d" % (classifierResult, classNumStr)
+        if (classifierResult != classNumStr): errorCount += 1.0
+    print "\n the total number of errors is: %d" % errorCount
+    print "\n the total error rate is: %f" % (errorCount/float(mTest))
