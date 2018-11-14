@@ -8,6 +8,7 @@
 #           返回回归系数
 
 from math import exp
+from random import random
 
 from numpy import mat, shape, ones, array, arange
 import matplotlib as plt
@@ -65,3 +66,27 @@ def plotBestFit(wei):
     plt.xlabel('X1')
     plt.ylabel('X2')
     plt.show()
+
+def stocGradAscent0(dataMatrix, classLabels):
+    m,n = shape(dataMatrix)
+    alpha = 0.01
+    weights = ones(n)
+    for i in range(m):
+        h = sigmoid(sum(dataMatrix[i] (* weights)))
+        error = classLabels[i] - h
+        weights = weights + alpha * error * dataMatrix[i]
+    return weights
+
+def stocGradAscent1(dataMatrix, classLabels, numIter=150):
+    m,n = shape(dataMatrix)
+    weights = ones(n)
+    for j in range(numIter):
+        dataIndex = range(m)
+        for i in range(m):
+            alpha = 4 / (1.0 + j+ i) + 0.01
+            randIndex = int(random.uni(0, len(dataIndex)))
+            h = sigmoid(sum(dataMatrix[randIndex] * weights))
+            error = classLabels[randIndex] -h
+            weights = weights + alpha * error * dataMatrix[randIndex]
+            del (dataIndex[randIndex])
+    return weights
