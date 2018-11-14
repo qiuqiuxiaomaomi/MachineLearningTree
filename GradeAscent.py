@@ -1,4 +1,12 @@
 #coding=utf-8
+
+#   梯度上升法的流程
+#       每个回归系统数初始化为1
+#       重复R次
+#           计算整个数据集的梯度
+#           使用alpha * gradient更新回归系数的向量
+#           返回回归系数
+
 from math import exp
 
 from numpy import mat, shape, ones, array, arange
